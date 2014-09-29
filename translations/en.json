@@ -1,10 +1,6 @@
 {
   "app": {
     "package": "app_name",
-    "parameters" : {
-      "sender" : { "label": "Sender group ID", "helpText": "Group ID that will be allowed to send broadcast messages."},
-      "tag" : {"label" : "Tag", "helpText" : "Tag that tickets to be shown in the app will have."}
-    },
     "description": {
       "value": "Play the famous zen tunes in your help desk.",
       "title": "app description"
@@ -14,7 +10,6 @@
       "title": "app name"
     }
   },
-
   "loading": {
     "value": "Welcome to this Sample App",
     "title": "loading placeholder"

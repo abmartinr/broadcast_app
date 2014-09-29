@@ -5,6 +5,11 @@
     "email": "aromero@zendesk.com",
     "url": "https://github.com/abelmartinromero"
   },
+  "defaultLocale": "en",
+  "private": true,
+  "location": "top_bar",
+  "version": "1.0",
+  "frameworkVersion": "1.0",
   "parameters":[
     {
       "name" : "sender",
@@ -12,19 +17,9 @@
       "required" : "true"
     },
     {
-      "name" : "receiver",
-      "type" : "text",
-      "required" : "true"
-    }
-    {
       "name" : "tag",
       "type" : "text",
       "required" : "true"
     }
-  ],
-  "defaultLocale": "en",
-  "private": true,
-  "location": "ticket_sidebar",
-  "version": "1.0",
-  "frameworkVersion": "1.0"
+  ]
 }
