@@ -1,14 +1,13 @@
-# App name
+# Broadcast it!
 
-[brief description of the app]
+App sends a broadcast to the agents with a message and the problem ID for the new alert.
 
 ### The following information is displayed:
 
-* info1
-* info2
-* info3
+* List of current tickets with specific tag
+* Shows a notification on agents when specified group sends a broadcast.
 
-Please submit bug reports to [Insert Link](). Pull requests are welcome.
+Pull requests are welcome.
 
 ### Screenshot(s):
-[put your screenshots down here.]
+TBD
