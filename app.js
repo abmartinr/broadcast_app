@@ -44,6 +44,7 @@
 
     checkUrgent: function() {
       var ticket = this.ticket();
+
       
       if (ticket.priority() == 'urgent') {
         var data = 'Ticket ID ' + ticket.id() + ' has been updated and currently has a priority of Urgent.';
@@ -71,6 +72,9 @@
           request.done(function(data){
             this.switchTo('showinfo', data);
           });
+
+      var currentLocation = this.currentLocation();
+      console.log(currentLocation);
     }
 
   };

@@ -12,11 +12,6 @@
   "frameworkVersion": "1.0",
   "parameters":[
     {
-      "name" : "sender", // What is this used for?
-      "type" : "text",
-      "required" : "true"
-    },
-    {
       "name" : "tag",
       "type" : "text",
       "required" : "true"
