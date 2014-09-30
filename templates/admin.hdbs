@@ -1,5 +1,4 @@
 <h4>Administrator Area</h4>
-<p>This is the admin area</p>
-<button class="btn notify_button">Send notification</button>
-<h4>Current notifications</p>
-<p>This is the Agent area</p>
+
+<button class="btn notify_btn">Send notification</button>
+<h4>Current notifications</h4>

@@ -1,50 +1,38 @@
 (function() {
 
+'use strict';
+
+  
   return {
-    events: {
-      'app.activated':'checkGroup',
-      'broadcastListener' : 'broadcastReceived',
-      'click .notify_button' :  function() {
-    		this.ajax('sendBroadcast', "This is the message").done(function(){return true;});
-      	}
-      },
     //Send the broadcast message
     requests: {
-      sendBroadcast : function(data){
-      	return{
-      		url: '/api/v2/apps/notify',
-      		type: 'POST',
-      		contentType: 'aplication/json',
-      		data: JSON.stringify({
-      			"app_id" : 0,
-      			"event" : "broadcastListener",
-      			"body" : data
-      		})
-      	}
-      }
-	},
-    //We receive the request and set the alerts
-    broadcastReceived: function(body) {
-    	alert(body);
+      searchTickets: function() {
+        return{
+          url: '/api/v2/search.json?query=ticket_type:Problem+priority:Urgent+status<solved+tags:'+this.setting('tag'),
+          dataType: "json",
+          type : 'GET'
+        }
+      },
     },
+    events: {
+      'app.activated':'loadData',
+      'click .link_ticket' : 'linkTicket'
+      },
     //We check the group to see which interface to load.
-    checkGroup: function() {
-    	var admin = false;
-    	var groups = this.currentUser().groups();
-    	for(var i = 0 ; i< groups.length; i++){
-    		if (groups[i].id() == this.setting('sender') ){
-    			admin = true;
-    		}
-    	}
-    	if(admin){
-    		this.switchTo('admin');
-    	}else{
-    		this.switchTo('agent');
-    	}
+    loadData: function() {
+      var request = this.ajax('searchTickets');
+      request.done(function(data){
+        this.switchTo('showinfo', data);
+      });
+    },
+    linkTicket: function(obj){
+      
+      var problemID = obj.target.id;
+       //this.ticket.type('Incident');
+       var currentTicket = this.ticket();
+       currentTicket.type('incident');
+       currentTicket.customField('problem_id', problemID);
     }
-
-
-
   };
 
 }());

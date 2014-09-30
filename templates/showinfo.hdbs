@@ -1,0 +1,5 @@
+<h3>Current ongoing Problems</h3>
+<br/>
+{{#each results}}
+<p><button class="btn btn-sm link_ticket" id="{{id}}">Link ticket</button> <a href="{{setting 'domain'}}/agent/tickets/{{id}}">{{subject}}</a> </p>
+{{/each}}
