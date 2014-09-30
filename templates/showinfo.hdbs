@@ -1,5 +1,7 @@
-<h3>Current ongoing Problems</h3>
+<h3>Unsolved Urgent Tickets</h3>
 <br/>
+<ol>
 {{#each results}}
-<p><button class="btn btn-sm link_ticket" id="{{id}}">Link ticket</button> <a href="{{setting 'domain'}}/agent/tickets/{{id}}">{{subject}}</a> </p>
+<li><a class="link" href="{{setting 'domain'}}/agent/tickets/{{id}}">{{subject}}</a></li>
 {{/each}}
+</ol>
