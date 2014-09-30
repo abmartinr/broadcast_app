@@ -12,7 +12,7 @@
   "frameworkVersion": "1.0",
   "parameters":[
     {
-      "name" : "sender", // What is this used for?
+      "name" : "sender", // This is used to filter by group ID who was going to be able to send broadcast messages.
       "type" : "text",
       "required" : "true"
     },

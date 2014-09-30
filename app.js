@@ -54,7 +54,11 @@
     },
 
     doPopMessage: function(body) {
-      services.notify(body, 'error');
+      var currentLocation = this.currentLocation();
+      if(currentLocation == "top_bar"){
+        services.notify(body, 'error');
+      }
+      
     },
 
     // linkTicket: function(obj){
