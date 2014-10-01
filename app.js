@@ -9,10 +9,10 @@
 
       findTicket: function(id) {
         return{
-          url: '/api/v2/tickets/'+id+'.json',
+          url: '/api/v2/tickets/' + id + '.json',
           dataType: 'json',
           type: 'GET'
-        }
+        };
       },
 
       searchTickets: function() { //Send the broadcast message
