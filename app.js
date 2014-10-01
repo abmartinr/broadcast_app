@@ -44,6 +44,7 @@
       'app.activated':'loadData',
       'ticket.save': 'checkUrgent',
       'notification.popMessage':'doPopMessage',
+      'pane.activated': 'changeIconToNormal',
 
       // AJAX Events & Callbacks
 
@@ -51,6 +52,11 @@
       'click .link_issue' : 'linkTicket',
       'click .link' : 'previewLink'
 
+    },
+    changeIconToNormal: function() {
+      this.setIconState('active', this.assetURL('icon_top_bar_active.png'));
+      this.setIconState('inactive', this.assetURL('icon_top_bar_inactive.png'));
+      this.setIconState('hover', this.assetURL('icon_top_bar_hover.png'));
     },
 
     checkUrgent: function() {
@@ -68,7 +74,9 @@
       var currentLocation = this.currentLocation();
       var updatedAt = new Date();
       if(currentLocation == "top_bar"){
-        console.log(this);
+        this.setIconState('active', this.assetURL('icon_top_bar_active_notif.png'));
+        this.setIconState('inactive', this.assetURL('icon_top_bar_active_notif.png'));
+        this.setIconState('hover', this.assetURL('icon_top_bar_active_notif.png'));
         services.notify(updatedAt.toUTCString() +' Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body + '">#'+ body +'</a> has been updated and currently has a priority of Urgent.', 'alert');
         var container = this.$("#notification_container");
         container.prepend( '<div class="alert">'+updatedAt.toUTCString() +' Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body + '">#'+ body +'</a> has been updated and currently has a priority of Urgent.</div>');
