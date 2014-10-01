@@ -68,9 +68,10 @@
       var currentLocation = this.currentLocation();
       var updatedAt = new Date();
       if(currentLocation == "top_bar"){
+        console.log(this);
         services.notify(updatedAt.toUTCString() +' Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body + '">#'+ body +'</a> has been updated and currently has a priority of Urgent.', 'alert');
         var container = this.$("#notification_container");
-        container.append( '<div class="alert">'+updatedAt.toUTCString() +' Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body + '">#'+ body +'</a> has been updated and currently has a priority of Urgent.</div>');
+        container.prepend( '<div class="alert">'+updatedAt.toUTCString() +' Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body + '">#'+ body +'</a> has been updated and currently has a priority of Urgent.</div>');
       }
       
     },
