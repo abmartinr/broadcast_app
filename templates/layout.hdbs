@@ -3,3 +3,5 @@
   <h3>{{setting "name"}}</h3>
 </header>
 <section data-main/>
+<div class="modal hide fade" tabindex="-1" role="dialog" id="detailsModal">
+  </div>
