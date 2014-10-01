@@ -50,9 +50,16 @@
 
       // DOM Events
       'click .link_issue' : 'linkTicket',
-      'click .link' : 'previewLink'
+      'click .link' : 'previewLink',
+      'click .clear_notifications' : 'clearPopover'
 
     },
+
+    clearPopover: function(){
+      var container = this.$("#notification_container");
+      container.empty();
+    },
+
     changeIconToNormal: function() {
       this.setIconState('active', this.assetURL('icon_top_bar_active.png'));
       this.setIconState('inactive', this.assetURL('icon_top_bar_inactive.png'));
