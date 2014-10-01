@@ -57,7 +57,7 @@
       var ticket = this.ticket();
       
       if (ticket.priority() == 'urgent') {
-        var data = 'Ticket ID ' + ticket.id() + ' has been updated and currently has a priority of Urgent.';
+        var data = ticket.id();
         this.ajax('notifyAgents', data).done( function(){ return true; });
       } else {
         return true;
@@ -66,8 +66,11 @@
 
     doPopMessage: function(body) {
       var currentLocation = this.currentLocation();
+      var updatedAt = new Date();
       if(currentLocation == "top_bar"){
-        services.notify(body, 'error');
+        services.notify(updatedAt.toUTCString() +' Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body + '">#'+ body +'</a> has been updated and currently has a priority of Urgent.', 'alert');
+        var container = this.$("#notification_container");
+        container.append( '<div class="alert">'+updatedAt.toUTCString() +' Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body + '">#'+ body +'</a> has been updated and currently has a priority of Urgent.</div>');
       }
       
     },
@@ -83,8 +86,7 @@
       event.preventDefault();
       var id = event.target.id;
       var ticket = this.ajax('findTicket', id);
-      ticket.always(function(data){
-        console.log(data.ticket.id);
+      ticket.done(function(data){
         var modal = this.$("#detailsModal");
         modal.html(this.renderTemplate('modal', {
           title: data.ticket.subject,
@@ -95,12 +97,15 @@
       });
     },
 
-
-    loadData: function() { //We check the group to see which interface to load.
-      var request = this.ajax('searchTickets');
+    loadData: function() { 
+      if(this.currentLocation() == 'top_bar'){
+        this.switchTo('showAlerts');
+      }else{
+        var request = this.ajax('searchTickets');
           request.done(function(data){
             this.switchTo('showinfo', data);
           });
+      }
     }
 
   };
