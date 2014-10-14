@@ -1,6 +1,8 @@
 (function() {
 
 'use strict';
+  var v_problems;
+  var v_redAlert;
 
   
   return {
@@ -15,9 +17,16 @@
         };
       },
 
-      searchTickets: function() { //Send the broadcast message
+      searchTickets: function(tags) { //Send the broadcast message
         return {
-          url: '/api/v2/search.json?query=ticket_type:problem+priority:urgent+status<solved+tags:' + this.setting('tag'),
+          url: '/api/v2/search.json?query=ticket_type:problem+status<solved' + tags,
+          dataType: 'json',
+          type : 'GET'
+        };
+      },
+      searchRedAlerts: function(){
+        return {
+          url: '/api/v2/search.json?query=ticket_type:problem+priority:urgent+status<solved+tags:' + this.setting('redAlertTag'),
           dataType: 'json',
           type : 'GET'
         };
@@ -114,13 +123,29 @@
     },
 
     loadData: function() { 
+      
       if(this.currentLocation() == 'top_bar'){
-        this.switchTo('showAlerts');
+        this.switchTo('showalerts');
       }else{
-        var request = this.ajax('searchTickets');
-          request.done(function(data){
-            this.switchTo('showinfo', data);
+        var tags = this.setting('tags');
+        var tags_splitted = tags.split(" ");
+        var search_string = "";
+        for(var i=0;i<tags_splitted.length;i++){
+          search_string+="+tags:"+tags_splitted[i];
+        }
+        var request = this.ajax('searchTickets', search_string);
+        request.done(function(v_problems){
+
+          var g_problems = _.map(v_problems.results, function(prob){return prob.assignee_id});
+          console.log(g_problems);
+          var request = this.ajax('searchRedAlerts');
+          request.done(function(v_redAlert){
+            this.switchTo('showinfo',{
+              "problems": v_problems.results,
+              "redAlert": v_redAlert.results
+            })
           });
+        });
       }
     }
 

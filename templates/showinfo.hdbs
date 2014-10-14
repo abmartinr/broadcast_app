@@ -1,7 +1,13 @@
-<h3>Unsolved Urgent Tickets</h3>
+<h3>Red Alerts ({{redAlert.length}}) </h3>
 <br/>
 <ol>
-{{#each results}}
+{{#each redAlert}}
+<li><a id="{{id}}" class="link" href="{{setting 'domain'}}/agent/tickets/{{id}}">{{subject}}</a></li>
+{{/each}}
+</ol>
+<h3>Problems ({{problems.length}})</h3>
+<ol>
+{{#each problems}}
 <li><a id="{{id}}" class="link" href="{{setting 'domain'}}/agent/tickets/{{id}}">{{subject}}</a></li>
 {{/each}}
 </ol>
