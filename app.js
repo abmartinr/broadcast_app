@@ -123,9 +123,12 @@
     //   });
     // },
 
-    loadData: function() { 
-      
+    loadData: function(data) {      
       if(this.currentLocation() == 'top_bar'){
+        if(data.firstLoad) {
+          this.popover('show');
+          this.popover('hide');
+        }
         this.switchTo('showalerts');
       }else{
         var tags = this.setting('tags');
