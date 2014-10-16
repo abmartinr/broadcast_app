@@ -1,9 +1,9 @@
-<h5>Red Alerts notifications</h5>
+<h5>Ongoing Red Alerts</h5>
 <div id="red_alert_notification" class="well well-small">
 Yay! There are no red alerts right now.
 </div>
 
-<h5>Problems notifications <button class="btn clear_notifications">Clear them all!</button></h5>
-<div id="problem_notification" class="well well-small">
+<h5>Notifications <button class="btn clear_notifications">Clear them all!</button></h5>
+<div id="notification_container" class="well well-small">
 
 </div>

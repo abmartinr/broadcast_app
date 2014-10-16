@@ -95,7 +95,7 @@
         this.setIconState('hover', this.assetURL('icon_top_bar_active_notif.png'));
         services.notify(updatedAt.toUTCString() +' Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body + '">#'+ body +'</a> has been updated and currently has a priority of Urgent.', 'alert');
         var container = this.$("#notification_container");
-        container.prepend( '<div class="alert">'+updatedAt.toUTCString() +' Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body + '">#'+ body +'</a> has been updated and currently has a priority of Urgent.</div>');
+        container.prepend( '<div class="alert">'+updatedAt.toUTCString().replace(' GMT','') +'<br/> Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body + '">#'+ body +'</a> has been updated and currently has a priority of Urgent.</div>');
       }
       
     },
@@ -109,26 +109,12 @@
       //alert('You have succesfully linked the ticket #'+currentTicket.id() + ' to problem #' +problemID);
     },
 
-    // previewLink: function(event){
-    //   var id = event.target.id;
-    //   var ticket = this.ajax('findTicket', id);
-    //   ticket.done(function(data){
-    //     var modal = this.$("#detailsModal");
-    //     modal.html(this.renderTemplate('modal', {
-    //       title: data.ticket.subject,
-    //       description: data.ticket.description,
-    //       id: data.ticket.id
-    //     }));
-    //     modal.modal();
-    //   });
-    // },
-
     loadData: function(data) {      
       if(this.currentLocation() == 'top_bar'){
         if(data.firstLoad) {
           this.popover('show');
           this.popover('hide');
-        }
+        }  
         this.switchTo('showalerts');
       }else{
         var tags = this.setting('tags');
