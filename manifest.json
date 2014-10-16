@@ -12,9 +12,14 @@
   "frameworkVersion": "1.0",
   "parameters":[
     {
-      "name" : "tag",
+      "name" : "tags",
       "type" : "text",
       "required" : "true"
+    },
+    {
+      "name" : "redAlertTag",
+      "type" : "text",
+      "required" : "true" 
     }
   ]
 }

@@ -1,7 +1,15 @@
-<h3>Unsolved Urgent Tickets</h3>
-<br/>
-<ol>
-{{#each results}}
-<li><a id="{{id}}" class="link" href="{{setting 'domain'}}/agent/tickets/{{id}}">{{subject}}</a></li>
+<h3>Red Alerts ({{redAlert.length}}) </h3>
+<ol class="problem_list">
+{{#each redAlert}}
+<li><span id="{{id}}" class="label label-important link_issue">#{{id}}</span> <a id="{{id}}" class="link" href="{{setting 'domain'}}/agent/tickets/{{id}}">{{subject}}</a></li>
 {{/each}}
 </ol>
+<h3>Problems ({{problems.length}})</h3>
+{{#each testGProblems}}
+<h5>{{@key}}</h5>
+<ol class="problem_list">
+{{#each this}}
+<li><span id="{{id}}" class="label label-info link_issue">#{{id}}</span> <a id="{{id}}" class="link" href="{{setting 'domain'}}/agent/tickets/{{id}}">{{subject}}</a></li>
+{{/each}}
+</ol>
+{{/each}}

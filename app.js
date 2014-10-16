@@ -1,6 +1,8 @@
 (function() {
 
 'use strict';
+  var v_problems;
+  var v_redAlert;
 
   
   return {
@@ -15,9 +17,16 @@
         };
       },
 
-      searchTickets: function() { //Send the broadcast message
+      searchTickets: function(tags) { //Send the broadcast message
         return {
-          url: '/api/v2/search.json?query=ticket_type:problem+priority:urgent+status<solved+tags:' + this.setting('tag'),
+          url: '/api/v2/search.json?query=ticket_type:problem+status<solved' + tags,
+          dataType: 'json',
+          type : 'GET'
+        };
+      },
+      searchRedAlerts: function(){
+        return {
+          url: '/api/v2/search.json?query=ticket_type:problem+priority:urgent+status<solved+tags:' + this.setting('redAlertTag'),
           dataType: 'json',
           type : 'GET'
         };
@@ -50,7 +59,7 @@
 
       // DOM Events
       'click .link_issue' : 'linkTicket',
-      'click .link' : 'previewLink',
+      'click .plink' : 'previewLink',
       'click .clear_notifications' : 'clearPopover'
 
     },
@@ -92,35 +101,62 @@
     },
 
     linkTicket: function(obj){
+      
       var problemID = obj.target.id;
       var currentTicket = this.ticket();
       currentTicket.type('incident');
       currentTicket.customField('problem_id', problemID);
+      //alert('You have succesfully linked the ticket #'+currentTicket.id() + ' to problem #' +problemID);
     },
 
-    previewLink: function(event){
-      event.preventDefault();
-      var id = event.target.id;
-      var ticket = this.ajax('findTicket', id);
-      ticket.done(function(data){
-        var modal = this.$("#detailsModal");
-        modal.html(this.renderTemplate('modal', {
-          title: data.ticket.subject,
-          description: data.ticket.description,
-          id: data.ticket.id
-        }));
-        modal.modal();
-      });
-    },
+    // previewLink: function(event){
+    //   var id = event.target.id;
+    //   var ticket = this.ajax('findTicket', id);
+    //   ticket.done(function(data){
+    //     var modal = this.$("#detailsModal");
+    //     modal.html(this.renderTemplate('modal', {
+    //       title: data.ticket.subject,
+    //       description: data.ticket.description,
+    //       id: data.ticket.id
+    //     }));
+    //     modal.modal();
+    //   });
+    // },
 
-    loadData: function() { 
+    loadData: function(data) {      
       if(this.currentLocation() == 'top_bar'){
-        this.switchTo('showAlerts');
+        if(data.firstLoad) {
+          this.popover('show');
+          this.popover('hide');
+        }
+        this.switchTo('showalerts');
       }else{
-        var request = this.ajax('searchTickets');
-          request.done(function(data){
-            this.switchTo('showinfo', data);
+        var tags = this.setting('tags');
+        var tags_splitted = tags.split(" ");
+        var search_string = "";
+        for(var i=0;i<tags_splitted.length;i++){
+          search_string+="+tags:"+tags_splitted[i];
+        }
+        var request = this.ajax('searchTickets', search_string);
+        request.done(function(v_problems){
+
+          var g_problems = _.groupBy(v_problems.results, function(prob){
+            for(var i=0;i<tags_splitted.length;i++){
+              if(_.contains(prob.tags, tags_splitted[i])){
+                return tags_splitted[i];
+              }
+            }
           });
+          var request = this.ajax('searchRedAlerts');
+          request.done(function(v_redAlert){
+            this.switchTo('showinfo',{
+              "problems": v_problems.results,
+              "redAlert": v_redAlert.results,
+              "testGProblems": g_problems,
+              "tags_splitted": tags_splitted
+            })
+          });
+        });
       }
     }
 

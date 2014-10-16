@@ -9,5 +9,5 @@
 
 <div class="modal-footer">
   <button class="btn" data-dismiss="modal">Cancel</button>
-  <button id="{{id}}" class="btn btn-primary link_issue" data-dismiss="modal">Link this issue</button>
+  <button id="{{id}}" class="btn btn-primary link_issue" >Link this issue</button>
 </div>

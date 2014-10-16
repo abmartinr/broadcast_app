@@ -6,3 +6,8 @@
 .link {
   font-size: 12px;
 }
+ol.problem_list {
+	list-style-type:none;
+	margin:0;
+	padding:0;
+}
