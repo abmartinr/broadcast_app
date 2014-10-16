@@ -59,7 +59,7 @@
 
       // DOM Events
       'click .link_issue' : 'linkTicket',
-      'click .link' : 'previewLink',
+      'click .plink' : 'previewLink',
       'click .clear_notifications' : 'clearPopover'
 
     },
@@ -101,26 +101,27 @@
     },
 
     linkTicket: function(obj){
+      
       var problemID = obj.target.id;
       var currentTicket = this.ticket();
       currentTicket.type('incident');
       currentTicket.customField('problem_id', problemID);
+      //alert('You have succesfully linked the ticket #'+currentTicket.id() + ' to problem #' +problemID);
     },
 
-    previewLink: function(event){
-      event.preventDefault();
-      var id = event.target.id;
-      var ticket = this.ajax('findTicket', id);
-      ticket.done(function(data){
-        var modal = this.$("#detailsModal");
-        modal.html(this.renderTemplate('modal', {
-          title: data.ticket.subject,
-          description: data.ticket.description,
-          id: data.ticket.id
-        }));
-        modal.modal();
-      });
-    },
+    // previewLink: function(event){
+    //   var id = event.target.id;
+    //   var ticket = this.ajax('findTicket', id);
+    //   ticket.done(function(data){
+    //     var modal = this.$("#detailsModal");
+    //     modal.html(this.renderTemplate('modal', {
+    //       title: data.ticket.subject,
+    //       description: data.ticket.description,
+    //       id: data.ticket.id
+    //     }));
+    //     modal.modal();
+    //   });
+    // },
 
     loadData: function() { 
       
@@ -136,13 +137,20 @@
         var request = this.ajax('searchTickets', search_string);
         request.done(function(v_problems){
 
-          var g_problems = _.map(v_problems.results, function(prob){return prob.assignee_id});
-          console.log(g_problems);
+          var g_problems = _.groupBy(v_problems.results, function(prob){
+            for(var i=0;i<tags_splitted.length;i++){
+              if(_.contains(prob.tags, tags_splitted[i])){
+                return tags_splitted[i];
+              }
+            }
+          });
           var request = this.ajax('searchRedAlerts');
           request.done(function(v_redAlert){
             this.switchTo('showinfo',{
               "problems": v_problems.results,
-              "redAlert": v_redAlert.results
+              "redAlert": v_redAlert.results,
+              "testGProblems": g_problems,
+              "tags_splitted": tags_splitted
             })
           });
         });
