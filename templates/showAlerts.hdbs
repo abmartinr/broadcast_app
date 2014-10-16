@@ -1,6 +1,13 @@
 <h5>Ongoing Red Alerts</h5>
 <div id="red_alert_notification" class="well well-small">
-Yay! There are no red alerts right now.
+{{#unless redAlert.length}}
+Yay!! There are no red alerts!!
+{{/unless}}
+<ol class="problem_list">
+{{#each redAlert}}
+<li><span id="{{id}}" class="label label-important link_issue">#{{id}}</span> <a id="{{id}}" class="link" href="{{setting 'domain'}}/agent/tickets/{{id}}">{{subject}}</a></li>
+{{/each}}
+</ol>
 </div>
 
 <h5>Notifications <button class="btn clear_notifications">Clear them all!</button></h5>

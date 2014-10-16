@@ -114,8 +114,14 @@
         if(data.firstLoad) {
           this.popover('show');
           this.popover('hide');
-        }  
-        this.switchTo('showalerts');
+        }
+        var request = this.ajax('searchRedAlerts');
+        request.done(function(v_redAlert){
+            console.log(v_redAlert);
+            this.switchTo('showalerts',{
+              "redAlert": v_redAlert.results
+            });
+        });
       }else{
         var tags = this.setting('tags');
         var tags_splitted = tags.split(" ");
