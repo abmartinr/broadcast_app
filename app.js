@@ -17,16 +17,33 @@
         };
       },
 
-      searchTickets: function(tags) { //Send the broadcast message
-        return {
-          url: '/api/v2/search.json?query=ticket_type:problem+status<solved' + tags,
-          dataType: 'json',
-          type : 'GET'
+      createView: function(){
+        return{
+          url: '/api/v2/views.json',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({'view': {
+            'title': 'broadcast_app_view',
+            'all': [{'field': 'status', 'operator': 'less_than', 'value':'solved'},
+                    {'field': 'current_tags', 'operator': 'includes', 'value': this.setting('redAlertTag')+ ' '+ this.setting('tags') }]}})
         };
       },
-      searchRedAlerts: function(){
-        return {
-          url: '/api/v2/search.json?query=ticket_type:problem+priority:urgent+status<solved+tags:' + this.setting('redAlertTag'),
+
+      syncTagsRequest:function(){
+        return{
+          url: '/api/v2/views/'+this.setting('view_id')+'.json',
+          type: 'PUT',
+          contentType: 'application/json',
+          data: JSON.stringify({'view': {
+            'title': 'broadcast_app_view',
+            'all': [{'field': 'status', 'operator': 'less_than', 'value':'solved'},
+                    {'field': 'current_tags', 'operator': 'includes', 'value': this.setting('redAlertTag')+ ' '+ this.setting('tags') }]}})
+        };
+      },
+      getTicketsFromView: function(){
+        return{
+          // /api/v2/views/{id}/tickets.json
+          url: '/api/v2/views/'+this.setting('view_id')+'/tickets.json',
           dataType: 'json',
           type : 'GET'
         };
@@ -42,6 +59,13 @@
               "event": "popMessage",
               "body": data
             })
+        };
+      },
+      getGroups: function(){
+        return{
+          url: '/api/v2/groups.json',
+          dataType: 'json',
+          type: 'GET'
         };
       }
 
@@ -60,10 +84,36 @@
       // DOM Events
       'click .link_issue' : 'linkTicket',
       'click .plink' : 'previewLink',
+      'click .create_view' : 'createViewFunc',
+      'click .update_view' : 'syncTags',
+      'click .send_notification' : 'sendNotification',
       'click .clear_notifications' : 'clearPopover'
 
     },
 
+    sendNotification: function(){
+      var data = {
+          "type": "MANUAL",
+          "requester": this.currentUser().name(),
+          "message": this.$(".message_input").val(),
+          "group_id": this.$(".group_input").val()
+        }
+        console.log(data);
+      this.ajax('notifyAgents', data).done( function(){ return true; });
+    },
+
+    createViewFunc: function(){
+      var request = this.ajax('createView');
+      request.done(function(data){
+        alert('The View with the ID '+data.view.id+' has been created. Please copy it and paste in your SETTINGS.');
+      });
+    },
+    syncTags: function(){
+      var request = this.ajax('syncTagsRequest');
+      request.done(function(){
+        alert('The view has been updated and all the tags are now correctly sync');
+      });
+    },
     clearPopover: function(){
       var container = this.$("#notification_container");
       container.empty();
@@ -77,14 +127,15 @@
 
     checkUrgent: function() {
       var ticket = this.ticket();
-      console.log(ticket.type());
+
       if (ticket.priority() == 'urgent' && ticket.type() == 'problem') {
         var data = {
+          "type": "AUTO",
           "id": ticket.id(),
           "subject": ticket.subject(),
           "tags": ticket.tags()
         }
-        console.log(data);
+
         this.ajax('notifyAgents', data).done( function(){ return true; });
       } else {
         return true;
@@ -99,15 +150,21 @@
         this.setIconState('inactive', this.assetURL('icon_top_bar_active_notif.png'));
         this.setIconState('hover', this.assetURL('icon_top_bar_active_notif.png'));
         var container = this.$("#notification_container");
-        if(_.contains(body.tags,'red_alert')){
-        services.notify(updatedAt.toUTCString() +' Red Alert <a href="'+this.setting('subdomain')+'/agent/tickets/' + body.id + '">#'+ body.id +'</a> has been updated and currently has a priority of Urgent.', 'alert');
-        container.prepend( '<div class="alert alert-danger">'+updatedAt.toUTCString().replace(' GMT','') +'<br/> Red Alert <a href="'+this.setting('subdomain')+'/agent/tickets/' + body.id + '">#'+ body.id +'</a> has been updated and currently has a priority of Urgent.</div>');
+        if(body.type == "MANUAL"){
+          if (_.find(this.currentUser().groups, body.group_id)){
+            services.notify(updatedAt.toUTCString().replace(' GMT','') + ' '+body.requester+' '+ body.message, 'alert');
+            container.prepend( '<div class="alert alert-warning">'+updatedAt.toUTCString().replace(' GMT','') + ' '+body.requester+' '+ body.message);
+          }
         }else{
-        services.notify(updatedAt.toUTCString() +' Problem Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body.id + '">#'+ body.id +'</a> has been updated and currently has a priority of Urgent.', 'alert');
-        container.prepend( '<div class="alert alert-info">'+updatedAt.toUTCString().replace(' GMT','') +'<br/> Problem Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body.id + '">#'+ body.id +'</a> has been updated and currently has a priority of Urgent.</div>');
+          if(_.contains(body.tags, this.setting('redAlertTag'))){
+          services.notify(updatedAt.toUTCString().replace(' GMT','') +' Red Alert <a href="'+this.setting('subdomain')+'/agent/tickets/' + body.id + '">#'+ body.id +'</a> has been updated and currently has a priority of Urgent.', 'alert');
+          container.prepend( '<div class="alert alert-danger">'+updatedAt.toUTCString().replace(' GMT','') +'<br/> Red Alert <a href="'+this.setting('subdomain')+'/agent/tickets/' + body.id + '">#'+ body.id +'</a> has been updated and currently has a priority of Urgent.</div>');
+          }else{
+          services.notify(updatedAt.toUTCString().replace(' GMT','') +' Problem Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body.id + '">#'+ body.id +'</a> has been updated and currently has a priority of Urgent.', 'alert');
+          container.prepend( '<div class="alert alert-info">'+updatedAt.toUTCString().replace(' GMT','') +'<br/> Problem Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body.id + '">#'+ body.id +'</a> has been updated and currently has a priority of Urgent.</div>');
+          }
         }
-      }
-      
+      }     
     },
 
     linkTicket: function(obj){
@@ -125,40 +182,47 @@
           this.popover('show');
           this.popover('hide');
         }
-        var request = this.ajax('searchRedAlerts');
-        request.done(function(v_redAlert){
-            console.log(v_redAlert);
-            this.switchTo('showalerts',{
-              "redAlert": v_redAlert.results
-            });
+        var tag = this.setting('redAlertTag');
+
+        var request = this.ajax('getTicketsFromView');
+        request.done(function(v_redAlert, app){
+          var red_alerts = _.filter(v_redAlert.tickets, function(ticket){
+            return _.contains(ticket.tags, tag);
+          });
+          this.switchTo('showalerts',{"redAlert":red_alerts});
         });
       }else{
         var tags = this.setting('tags');
         var tags_splitted = tags.split(" ");
         var search_string = "";
+        var red_alert_tag = this.setting('redAlertTag');
         for(var i=0;i<tags_splitted.length;i++){
           search_string+="+tags:"+tags_splitted[i];
         }
-        var request = this.ajax('searchTickets', search_string);
-        request.done(function(v_problems){
-
-          var g_problems = _.groupBy(v_problems.results, function(prob){
+        var request = this.ajax('getTicketsFromView');
+        request.done(function(results){
+        var problems = _.filter(results.tickets, function(ticket){
             for(var i=0;i<tags_splitted.length;i++){
-              if(_.contains(prob.tags, tags_splitted[i])){
-                return tags_splitted[i];
+              if(_.contains(ticket.tags, tags_splitted[i])){
+                return true;
               }
             }
           });
-          var request = this.ajax('searchRedAlerts');
-          request.done(function(v_redAlert){
-            this.switchTo('showinfo',{
-              "problems": v_problems.results,
-              "redAlert": v_redAlert.results,
-              "testGProblems": g_problems,
-              "tags_splitted": tags_splitted
-            })
+        var red_alerts = _.filter(results.tickets, function(ticket){
+          return _.contains(ticket.tags, red_alert_tag);
+        });
+
+        var requestGroups = this.ajax('getGroups');
+        requestGroups.done(function(results_groups){
+          this.switchTo('showinfo',{
+           "problems": problems,
+           "redAlert": red_alerts,
+           "tags_splitted": tags_splitted,
+           "groups": results_groups.groups
           });
         });
+        });
+
       }
     }
 

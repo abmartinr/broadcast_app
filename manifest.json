@@ -20,6 +20,11 @@
       "name" : "redAlertTag",
       "type" : "text",
       "required" : "true" 
+    },
+    {
+      "name" : "view_id",
+      "type" : "text",
+      "required" : "false"
     }
   ]
 }

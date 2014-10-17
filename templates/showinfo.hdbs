@@ -8,11 +8,18 @@ Yay!! There are no red alerts!!
 {{/each}}
 </ol>
 <h3>Problems ({{problems.length}})</h3>
-{{#each testGProblems}}
+{{#each problems}}
 <h5>{{@key}}</h5>
 <ol class="problem_list">
-{{#each this}}
 <li><span id="{{id}}" class="label label-info link_issue">#{{id}}</span> <a id="{{id}}" class="link" href="{{setting 'domain'}}/agent/tickets/{{id}}">{{subject}}</a></li>
-{{/each}}
 </ol>
 {{/each}}
+<button class="btn create_view">Create View</button><button class="btn update_view">Sync Tags</button>
+<br/>
+<input type="text" placeholder="Type your message here" id="message_input">
+<select id="group_input" >
+  {{#each groups}}
+   <option value="{{id}}">{{name}}</option>
+  {{/each}}
+</select>
+</input><button class="btn send_notification">Send the message</button>
