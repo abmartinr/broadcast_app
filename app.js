@@ -77,9 +77,14 @@
 
     checkUrgent: function() {
       var ticket = this.ticket();
-      
-      if (ticket.priority() == 'urgent') {
-        var data = ticket.id();
+      console.log(ticket.type());
+      if (ticket.priority() == 'urgent' && ticket.type() == 'problem') {
+        var data = {
+          "id": ticket.id(),
+          "subject": ticket.subject(),
+          "tags": ticket.tags()
+        }
+        console.log(data);
         this.ajax('notifyAgents', data).done( function(){ return true; });
       } else {
         return true;
@@ -93,9 +98,14 @@
         this.setIconState('active', this.assetURL('icon_top_bar_active_notif.png'));
         this.setIconState('inactive', this.assetURL('icon_top_bar_active_notif.png'));
         this.setIconState('hover', this.assetURL('icon_top_bar_active_notif.png'));
-        services.notify(updatedAt.toUTCString() +' Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body + '">#'+ body +'</a> has been updated and currently has a priority of Urgent.', 'alert');
         var container = this.$("#notification_container");
-        container.prepend( '<div class="alert">'+updatedAt.toUTCString() +' Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body + '">#'+ body +'</a> has been updated and currently has a priority of Urgent.</div>');
+        if(_.contains(body.tags,'red_alert')){
+        services.notify(updatedAt.toUTCString() +' Red Alert <a href="'+this.setting('subdomain')+'/agent/tickets/' + body.id + '">#'+ body.id +'</a> has been updated and currently has a priority of Urgent.', 'alert');
+        container.prepend( '<div class="alert alert-danger">'+updatedAt.toUTCString().replace(' GMT','') +'<br/> Red Alert <a href="'+this.setting('subdomain')+'/agent/tickets/' + body.id + '">#'+ body.id +'</a> has been updated and currently has a priority of Urgent.</div>');
+        }else{
+        services.notify(updatedAt.toUTCString() +' Problem Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body.id + '">#'+ body.id +'</a> has been updated and currently has a priority of Urgent.', 'alert');
+        container.prepend( '<div class="alert alert-info">'+updatedAt.toUTCString().replace(' GMT','') +'<br/> Problem Ticket <a href="'+this.setting('subdomain')+'/agent/tickets/' + body.id + '">#'+ body.id +'</a> has been updated and currently has a priority of Urgent.</div>');
+        }
       }
       
     },
@@ -109,27 +119,19 @@
       //alert('You have succesfully linked the ticket #'+currentTicket.id() + ' to problem #' +problemID);
     },
 
-    // previewLink: function(event){
-    //   var id = event.target.id;
-    //   var ticket = this.ajax('findTicket', id);
-    //   ticket.done(function(data){
-    //     var modal = this.$("#detailsModal");
-    //     modal.html(this.renderTemplate('modal', {
-    //       title: data.ticket.subject,
-    //       description: data.ticket.description,
-    //       id: data.ticket.id
-    //     }));
-    //     modal.modal();
-    //   });
-    // },
-
     loadData: function(data) {      
       if(this.currentLocation() == 'top_bar'){
         if(data.firstLoad) {
           this.popover('show');
           this.popover('hide');
         }
-        this.switchTo('showalerts');
+        var request = this.ajax('searchRedAlerts');
+        request.done(function(v_redAlert){
+            console.log(v_redAlert);
+            this.switchTo('showalerts',{
+              "redAlert": v_redAlert.results
+            });
+        });
       }else{
         var tags = this.setting('tags');
         var tags_splitted = tags.split(" ");
