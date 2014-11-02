@@ -3,6 +3,8 @@
     'use strict';
     var v_problems;
     var v_redAlert;
+    var forceUpdate = false;
+    var currentTicketType = "";
 
 
     return {
@@ -33,6 +35,11 @@
                                 'field': 'current_tags',
                                 'operator': 'includes',
                                 'value': this.setting('redAlertTag') + ' ' + this.setting('tags')
+                            }, {
+                                'field': 'type',
+                                'operator': 'is',
+                                'value': 'problem'
+
                             }]
                         }
                     })
@@ -68,7 +75,7 @@
                     type: 'GET'
                 };
             },
-            getAllViews: function(){
+            getAllViews: function() {
                 return {
                     // /api/v2/views.json
                     url: '/api/v2/views.json',
@@ -89,6 +96,17 @@
                     })
                 };
             },
+            askForReload: function() {
+                return {
+                    url: '/api/v2/apps/notify.json',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        "app_id": this.id(),
+                        "event": "reload"
+                    })
+                };
+            },
             getGroups: function() {
                 return {
                     url: '/api/v2/groups.json',
@@ -105,6 +123,7 @@
             'app.activated': 'loadData',
             'ticket.save': 'checkUrgent',
             'notification.popMessage': 'doPopMessage',
+            'notification.reload': 'doReload',
             'pane.activated': 'changeIconToNormal',
 
             // AJAX Events & Callbacks
@@ -115,20 +134,29 @@
             'click .create_view': 'createViewFunc',
             'click .update_view': 'syncTags',
             'click .send_notification': 'sendNotification',
-            'click .clear_input' : function(){
-              this.$("input#message_input").val('');  
+            'click .clear_input': function() {
+                this.$("input#message_input").val('');
             },
+            'ticket.type.changed' : 'isNoLongerProblem',
             'click .toggle-app': 'toggleAppContainer',
             'click .clear_notifications': 'clearPopover'
 
         },
+        isNoLongerProblem: function(){
+            var modifiedType = this.ticket().type();
 
-
-        toggleAppContainer: function(){
+            if(currentTicketType=='problem' && modifiedType != currentTicketType){
+                forceUpdate = true;
+            }
+        },
+        doReload: function(){
+            this.loadData({"firstLoad":false});
+        },
+        toggleAppContainer: function() {
             var $container = this.$('.app-container'),
-            $icon = this.$('.toggle-app i');
+                $icon = this.$('.toggle-app i');
 
-            if ($container.is(':visible')){
+            if ($container.is(':visible')) {
                 $container.hide();
                 $icon.prop('class', 'icon-plus');
             } else {
@@ -137,7 +165,7 @@
             }
         },
         sendNotification: function() {
-            if(this.$("input#message_input").val() != ''){
+            if (this.$("input#message_input").val() != '') {
                 var data = {
                     "type": "MANUAL",
                     "requester": this.currentUser().name(),
@@ -153,30 +181,30 @@
 
         createViewFunc: function() {
             var check_req = this.ajax('getAllViews');
-            check_req.done(function(data){
+            check_req.done(function(data) {
                 var res = true;
                 console.log(data);
-                for(var i = 0; i<data.views.length;i++){
-                    if(data.views[i].title == "broadcast_app_view"){
-                        res=false;
+                for (var i = 0; i < data.views.length; i++) {
+                    if (data.views[i].title == "broadcast_app_view") {
+                        res = false;
                         break;
                     }
                 }
-                if(res){
-                var request = this.ajax('createView');
-                request.done(function(data) {
-                    alert('The View with the ID ' + data.view.id + ' has been created. Please copy it and paste in your SETTINGS.');
-                });
-                }else{
+                if (res) {
+                    var request = this.ajax('createView');
+                    request.done(function(data) {
+                        alert('The View with the ID ' + data.view.id + ' has been created. Please copy it and paste in your SETTINGS.');
+                    });
+                } else {
                     var question = confirm('There is already a view for this app. Clicking ok will create a new one. Are you sure you want to continue?');
-                    if(question){
-                       var request = this.ajax('createView');
+                    if (question) {
+                        var request = this.ajax('createView');
                         request.done(function(data) {
                             alert('The View with the ID ' + data.view.id + ' has been created. Please copy it and paste in your SETTINGS.');
-                        }); 
+                        });
                     }
                 }
-            });       
+            });
         },
         syncTags: function() {
             var request = this.ajax('syncTagsRequest');
@@ -197,17 +225,20 @@
 
         checkUrgent: function() {
             var ticket = this.ticket();
-
-            if (ticket.priority() == 'urgent' && ticket.type() == 'problem') {
-                var data = {
-                    "type": "AUTO",
-                    "id": ticket.id(),
-                    "subject": ticket.subject(),
-                    "tags": ticket.tags()
-                }
-
-                this.ajax('notifyAgents', data).done(function() {
-                    return true;
+            if (ticket.type() == 'problem' || forceUpdate) {
+                var reload = this.ajax('askForReload');
+                reload.done(function() {
+                    if (ticket.priority() == 'urgent') {
+                        var data = {
+                            "type": "AUTO",
+                            "id": ticket.id(),
+                            "subject": ticket.subject(),
+                            "tags": ticket.tags()
+                        }
+                        this.ajax('notifyAgents', data).done(function() {
+                            return true;
+                        });
+                    }
                 });
             } else {
                 return true;
@@ -221,7 +252,9 @@
             if (currentLocation == "top_bar") {
                 if (body.type == "MANUAL") {
                     var current_user = this.currentUser().groups();
-                    var groups = _.map(current_user, function(group){ return group.id(); });
+                    var groups = _.map(current_user, function(group) {
+                        return group.id();
+                    });
                     if (_.contains(groups, parseInt(body.group_id))) {
                         this.setIconState('active', this.assetURL('icon_top_bar_active_notif.png'));
                         this.setIconState('inactive', this.assetURL('icon_top_bar_active_notif.png'));
@@ -287,13 +320,14 @@
                             }
                         }
                     });
-                    var g_problems = _.groupBy(only_problems, function(prob){
-                    for(var i=0;i<tags_splitted.length;i++){
-                      if(_.contains(prob.tags, tags_splitted[i])){
-                        return tags_splitted[i];
-                      }
-                    }
-                  });
+                    var g_problems = _.groupBy(only_problems, function(prob) {
+                        for (var i = 0; i < tags_splitted.length; i++) {
+                            if (_.contains(prob.tags, tags_splitted[i])) {
+                                return tags_splitted[i];
+                            }
+                        }
+                    });
+                    console.log(g_problems);
                     var red_alerts = _.filter(results.tickets, function(ticket) {
                         return _.contains(ticket.tags, red_alert_tag);
                     });
@@ -307,8 +341,10 @@
                         });
                     });
                 });
-
+                currentTicketType = this.ticket().type();
+                forceUpdate = false;
             }
+
         }
 
     };
