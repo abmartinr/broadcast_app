@@ -165,13 +165,13 @@
             }
         },
         sendNotification: function() {
-            if (this.$("input#message_input").val() != '') {
+            if (this.$("input#message_input").val() !== '') {
                 var data = {
                     "type": "MANUAL",
                     "requester": this.currentUser().name(),
                     "message": this.$("input#message_input").val(),
                     "group_id": this.$("select#group_input").val()
-                }
+                };
                 this.$("input#message_input").val('');
                 this.ajax('notifyAgents', data).done(function() {
                     return true;
@@ -195,10 +195,10 @@
                         alert('The View with the ID ' + data.view.id + ' has been created. Please copy it and paste in your SETTINGS.');
                     });
                 } else {
-                    var question = confirm('There is already a view for this app. Clicking ok will create a new one. Are you sure you want to continue?');
+                    var question = window.confirm('There is already a view for this app. Clicking ok will create a new one. Are you sure you want to continue?');
                     if (question) {
-                        var request = this.ajax('createView');
-                        request.done(function(data) {
+                        var request_2 = this.ajax('createView');
+                        request_2.done(function(data) {
                             alert('The View with the ID ' + data.view.id + ' has been created. Please copy it and paste in your SETTINGS.');
                         });
                     }
@@ -233,7 +233,7 @@
                             "id": ticket.id(),
                             "subject": ticket.subject(),
                             "tags": ticket.tags()
-                        }
+                        };
                         this.ajax('notifyAgents', data).done(function() {
                             return true;
                         });
@@ -254,7 +254,7 @@
                     var groups = _.map(current_user, function(group) {
                         return group.id();
                     });
-                    if (_.contains(groups, parseInt(body.group_id))) {
+                    if (_.contains(groups, parseInt(body.group_id,0))) {
                         this.setIconState('active', this.assetURL('icon_top_bar_active_notif.png'));
                         this.setIconState('inactive', this.assetURL('icon_top_bar_active_notif.png'));
                         this.setIconState('hover', this.assetURL('icon_top_bar_active_notif.png'));
@@ -312,8 +312,8 @@
                 for (var i = 0; i < tags_splitted.length; i++) {
                     search_string += "+tags:" + tags_splitted[i];
                 }
-                var request = this.ajax('getTicketsFromView');
-                request.done(function(results) {
+                var request_2 = this.ajax('getTicketsFromView');
+                request_2.done(function(results) {
                     var only_problems = _.filter(results.tickets, function(ticket) {
                         for (var i = 0; i < tags_splitted.length; i++) {
                             if (_.contains(ticket.tags, tags_splitted[i])) {
@@ -338,7 +338,7 @@
                     var groups = _.map(current_user_groups, function(group) {
                         return group.id();
                     });
-                    if (_.contains(groups, parseInt(this.setting('admin_group')))) {
+                    if (_.contains(groups, parseInt(this.setting('admin_group'),0))) {
                         isAdmin = true;
                     }
 
