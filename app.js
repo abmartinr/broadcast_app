@@ -195,13 +195,13 @@
                         alert('The View with the ID ' + data.view.id + ' has been created. Please copy it and paste in your SETTINGS.');
                     });
                 } else {
-                    var question = window.confirm('There is already a view for this app. Clicking ok will create a new one. Are you sure you want to continue?');
-                    if (question) {
+                    // var question = confirm('There is already a view for this app. Clicking ok will create a new one. Are you sure you want to continue?');
+                    // if (question) {
                         var request_2 = this.ajax('createView');
                         request_2.done(function(data) {
                             alert('The View with the ID ' + data.view.id + ' has been created. Please copy it and paste in your SETTINGS.');
                         });
-                    }
+                    // }
                 }
             });
         },
@@ -212,8 +212,9 @@
             });
         },
         clearPopover: function() {
-            var container = this.$("#notification_container");
-            container.empty();
+            //this.loadData({"firstLoad":true});
+            var notif_container = this.$("#notification_container");
+            notif_container.empty();
         },
 
         changeIconToNormal: function() {
@@ -287,22 +288,39 @@
 
         loadData: function(data) {
             if (this.currentLocation() == 'top_bar') {
+                var tag = this.setting('redAlertTag');
                 if (data.firstLoad) {
                     this.popover('show');
                     this.popover('hide');
-                }
-                var tag = this.setting('redAlertTag');
+                    
 
-                var request = this.ajax('getTicketsFromView');
-                request.done(function(v_redAlert, app) {
-                    var red_alerts = _.filter(v_redAlert.tickets, function(ticket) {
-                        return _.contains(ticket.tags, tag);
+                    var request = this.ajax('getTicketsFromView');
+                    request.done(function(v_redAlert, app) {
+                        var red_alerts = _.filter(v_redAlert.tickets, function(ticket) {
+                            return _.contains(ticket.tags, tag);
+                        });
+                        this.switchTo('showalerts', {
+                            "redAlert": red_alerts
+                        });
                     });
-                    this.switchTo('showalerts', {
-                        "redAlert": red_alerts
+                }else{
+                    var request_3 = this.ajax('getTicketsFromView');
+                    request_3.done(function(v_redAlert) {
+                        var red_alerts = _.filter(v_redAlert.tickets, function(ticket) {
+                            return _.contains(ticket.tags, tag);
+                        });
+                        var red_alertlist = this.$('#red_alert_notification');
+                        red_alertlist.clear();
+                        console.log(red_alerts);
+                        for(var i = 0 ; i<red_alerts.length;i++){
+                            console.log(red_alerts[i]);
+                            red_alertlist.append('<li><span id="'+red_alerts[i].id+'" class="label label-important link_issue">#'+red_alerts[i].id+'</span> <a id="'+red_alerts[i].id+'" class="link" href="'+this.setting("domain")+'/agent/tickets/'+red_alerts[i].id+'">'+red_alerts[i].subject+'</a></li>');
+                        }
                     });
-                });
+                }
+
             } else if (this.currentLocation() == 'ticket_sidebar' || this.currentLocation() == 'new_ticket_sidebar'){
+
                 var tags = this.setting('tags');
                 var tags_splitted = tags.split(" ");
                 var search_string = "";

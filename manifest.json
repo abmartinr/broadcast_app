@@ -23,11 +23,11 @@
     },
     {
       "name" : "view_id",
-      "type" : "text",
+      "type" : "text"
     },
     {
       "name" : "admin_group",
-      "type" : "text",
+      "type" : "text"
     }
   ]
 }
