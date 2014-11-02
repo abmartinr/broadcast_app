@@ -118,10 +118,24 @@
             'click .clear_input' : function(){
               this.$("input#message_input").val('');  
             },
+            'click .toggle-app': 'toggleAppContainer',
             'click .clear_notifications': 'clearPopover'
 
         },
 
+
+        toggleAppContainer: function(){
+            var $container = this.$('.app-container'),
+            $icon = this.$('.toggle-app i');
+
+            if ($container.is(':visible')){
+                $container.hide();
+                $icon.prop('class', 'icon-plus');
+            } else {
+                $container.show();
+                $icon.prop('class', 'icon-minus');
+            }
+        },
         sendNotification: function() {
             if(this.$("input#message_input").val() != ''){
                 var data = {
