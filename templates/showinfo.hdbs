@@ -16,10 +16,10 @@ Yay!! There are no red alerts!!
 {{/each}}
 </ol>
 {{/each}}
+{{#if isAdmin}}
 <br/>
 <hr>
 <h3>Admin options</h3>
-<p>This is only visible by admins</p>
 <br/>
 <h4>Send Broadcast</h4>
 <input type="text" class="message_text" placeholder="Type your message here" id="message_input">
@@ -30,7 +30,8 @@ Yay!! There are no red alerts!!
   {{/each}}
 </select>
 </input><button class="btn send_notification">Send</button><button class="btn clear_input">Reset</button>
-<br/><br/><br/>
+<br/><br/>
 <h4>App Administration</h4>
 <button class="btn create_view">Create View</button><button class="btn update_view">Sync Tags</button>
 <br/>
+{{/if}}

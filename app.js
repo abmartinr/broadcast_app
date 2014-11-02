@@ -183,7 +183,6 @@
             var check_req = this.ajax('getAllViews');
             check_req.done(function(data) {
                 var res = true;
-                console.log(data);
                 for (var i = 0; i < data.views.length; i++) {
                     if (data.views[i].title == "broadcast_app_view") {
                         res = false;
@@ -303,10 +302,12 @@
                         "redAlert": red_alerts
                     });
                 });
-            } else {
+            } else if (this.currentLocation() == 'ticket_sidebar' || this.currentLocation() == 'new_ticket_sidebar'){
                 var tags = this.setting('tags');
                 var tags_splitted = tags.split(" ");
                 var search_string = "";
+                currentTicketType = this.ticket().type();
+                forceUpdate = false;
                 var red_alert_tag = this.setting('redAlertTag');
                 for (var i = 0; i < tags_splitted.length; i++) {
                     search_string += "+tags:" + tags_splitted[i];
@@ -327,22 +328,31 @@
                             }
                         }
                     });
-                    console.log(g_problems);
                     var red_alerts = _.filter(results.tickets, function(ticket) {
                         return _.contains(ticket.tags, red_alert_tag);
                     });
                     var requestGroups = this.ajax('getGroups');
+                    var isAdmin = false;
+
+                    var current_user_groups = this.currentUser().groups();
+                    var groups = _.map(current_user_groups, function(group) {
+                        return group.id();
+                    });
+                    if (_.contains(groups, parseInt(this.setting('admin_group')))) {
+                        isAdmin = true;
+                    }
+
                     requestGroups.done(function(results_groups) {
                         this.switchTo('showinfo', {
                             "problems": g_problems,
                             "redAlert": red_alerts,
                             "tags_splitted": tags_splitted,
-                            "groups": results_groups.groups
+                            "groups": results_groups.groups,
+                            "isAdmin": isAdmin
                         });
                     });
                 });
-                currentTicketType = this.ticket().type();
-                forceUpdate = false;
+
             }
 
         }
