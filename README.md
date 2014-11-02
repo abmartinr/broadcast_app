@@ -46,4 +46,3 @@ Stores a log of the notifications received while logged in. They have different 
 A message will appear showing the view ID that has been created:
 
 ![View ID Alert](http://content.screencast.com/users/aromerozd/folders/Jing/media/e0eb3e74-a9f5-467c-a9ca-18f1b2d9c649/00000337.png)
-
