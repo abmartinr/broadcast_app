@@ -1,5 +1,5 @@
 {
-  "name": "Broadcast it!",
+  "name": "Broadcast App",
   "author": {
     "name": "Abel Martin Romero",
     "email": "aromero@zendesk.com",
@@ -20,6 +20,11 @@
       "name" : "redAlertTag",
       "type" : "text",
       "required" : "true" 
+    },
+    {
+      "name" : "view_id",
+      "type" : "text",
+      "required" : "false"
     }
   ]
 }
